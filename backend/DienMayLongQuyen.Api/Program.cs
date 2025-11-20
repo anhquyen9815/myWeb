@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // --- CONFIGURE SQLITE RUNTIME PATH & SEED COPY LOGIC ------------------
 // runtime DB path (bạn có thể set env var SQLITE_DB_PATH nếu muốn khác)
 var dbPath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH")
-             ?? Path.Combine(builder.Environment.ContentRootPath, "app.db");
+             ?? Path.Combine(builder.Environment.ContentRootPath, "longquyen.db");
 
 // seed DB path inside image (Dockerfile phải copy Seed/longquyen.db vào image)
 var seedPath = Path.Combine(builder.Environment.ContentRootPath, "Seed", "longquyen.db");
