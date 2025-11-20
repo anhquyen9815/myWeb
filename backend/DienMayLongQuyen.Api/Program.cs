@@ -7,6 +7,11 @@ using System;
 
 // Top-level app
 var builder = WebApplication.CreateBuilder(args);
+var loggerFactory = LoggerFactory.Create(logging =>
+{
+    logging.AddConsole();
+});
+var logger = loggerFactory.CreateLogger("Startup");
 
 // --- CONFIGURE SQLITE RUNTIME PATH & SEED COPY LOGIC ------------------
 // runtime DB path (bạn có thể set env var SQLITE_DB_PATH nếu muốn khác)
@@ -15,6 +20,11 @@ var dbPath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH")
 
 // seed DB path inside image (Dockerfile phải copy Seed/longquyen.db vào image)
 var seedPath = Path.Combine(builder.Environment.ContentRootPath, "Seed", "longquyen.db");
+logger.LogInformation("Seed path: {seedPath}", seedPath);
+logger.LogInformation("Target db path: {dbPath}", dbPath);
+logger.LogInformation("Seed exists: {seedExists}", File.Exists(seedPath));
+logger.LogInformation("Target exists: {dbExists}", File.Exists(dbPath));
+
 
 // create directory for runtime db if needed
 var dbDir = Path.GetDirectoryName(dbPath);
@@ -107,7 +117,7 @@ app.UseStaticFiles();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
+    // var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
@@ -132,7 +142,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+        // var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
         var log = loggerFactory.CreateLogger<Program>();
         log.LogError(ex, "An error occurred while initializing the database.");
         // Tuỳ chọn: throw; // để app không start nếu DB init thất bại

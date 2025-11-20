@@ -18,6 +18,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+
+    <None Update="Seed/longquyen.db">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data/triggers.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
