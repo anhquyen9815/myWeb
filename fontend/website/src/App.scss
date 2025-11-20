@@ -1,0 +1,83 @@
+@use './styles/_variables.scss' as *;
+// Khai báo Biến SCSS cho màu sắc và kích thước
+// $max-width-root: 1280px;
+$padding-root: 2rem;
+$logo-size: 6em;
+$logo-padding: 1.5em;
+
+// Màu sắc cho hiệu ứng hover logo
+$shadow-blue: #646cffaa;
+$shadow-react: #61dafbaa;
+$docs-color: #888;
+
+body,
+#root {
+  // max-width: $max-width-root;
+  // margin: 0 auto;
+  // padding: $padding-root;
+  // text-align: center;
+  overflow-x: hidden; 
+  height: 100%;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  height: $logo-size;
+  padding: $logo-padding;
+  will-change: filter;
+  transition: filter 300ms;
+
+  // LỒNG GHÉP: Trạng thái hover
+  &:hover {
+    filter: drop-shadow(0 0 2em $shadow-blue);
+  }
+
+  // LỒNG GHÉP: Logo React cụ thể
+  &.react:hover {
+    filter: drop-shadow(0 0 2em $shadow-react);
+  }
+}
+
+// Keyframes không thể lồng ghép
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// LỒNG GHÉP: Media Query
+@media (prefers-reduced-motion: no-preference) {
+
+  // Lồng ghép bộ chọn con
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  display: flex;
+  padding: 2em;
+  // background-color: var(--color-primary);
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.button {
+  margin-bottom: 10;
+  display: inline-block;
+}
+
+.read-the-docs {
+  color: $docs-color; // Sử dụng biến SCSS
+}

@@ -1,0 +1,112 @@
+// src/components/layout/AuxBar/AuxBar.scss
+
+// Đảm bảo các biến màu đã được định nghĩa trong _variables.scss
+$aux-bar-bg: #d00; // Màu xanh đậm
+$text-light: #FFFFFF;
+$padding-base: 16px;
+$aux-bar-text-color: #FFFFFF;
+
+.aux-bar {
+    // Styling cơ bản của thanh bar
+    // 1. ĐẶT VỊ TRÍ CỐ ĐỊNH (Không bị cuộn)
+    position: fixed;
+    // 2. NEO VÀO ĐỈNH VÀ GÓC TRÁI
+    top: 0;
+    left: 0;
+    // 3. CHIẾM TOÀN BỘ CHIỀU RỘNG MÀN HÌNH
+    width: 100%;
+    // 4. ĐẢM BẢO NÓ LUÔN NẰM TRÊN CÁC ELEMENT KHÁC
+    z-index: 1000;
+    background-color: $aux-bar-bg;
+    color: $text-light;
+    font-size: 14px;
+    padding-right: 2%;
+    padding-left: 2%;
+    // min-width: 700px;
+    // padding: 0px $padding-base; // Padding trên dưới nhỏ
+    // min-height: 40px;
+
+}
+
+.aux-content {
+    display: flex;
+    justify-content: right; // Dàn đều sang hai bên
+    align-items: center;
+    // max-width: 1300px; // Đặt max-width cho nội dung (nếu cần)
+    margin: 0 auto; // Căn giữa nội dung
+}
+
+.info-section,
+.action-section {
+    display: flex;
+    align-items: center;
+    // gap: 50px; // Khoảng cách giữa các mục thông tin
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    // Tùy chỉnh font weight nếu cần
+    font-weight: 700;
+    margin-right: 15px;
+    padding-right: 15px;
+    border-right: 1px solid rgba($aux-bar-text-color, 0.4);
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    .icon {
+        margin-right: 8px;
+        // Icon có thể cần màu nhạt hơn một chút (tùy chọn)
+        color: rgba($text-light, 0.8);
+    }
+
+    a {
+        color: $text-light; // Đảm bảo link màu trắng
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    
+}
+
+
+.phone-link{
+     font-weight: 700;
+}
+
+
+.login-link {
+    display: flex;
+    align-items: center;
+    color: $text-light;
+    text-decoration: none;
+    font-weight: bold;
+    gap: 8px;
+    transition: opacity 0.2s;
+    // margin-right: 70px;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+/* ===== Media query mobile ===== */
+// @media (max-width: 768px) {
+//   .aux-bar {
+//     .aux-content {
+//       justify-content: center; // căn giữa SearchBox
+//       .info-section,
+//       .action-section {
+//         display: none !important;
+//       }
+
+//       .search-section {
+//         width: 100%; // SearchBox chiếm full width
+//         max-width: 400px; // giới hạn max
+//       }
+//     }
+//   }
+// }

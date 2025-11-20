@@ -1,0 +1,53 @@
+// src/styles/_variables.scss
+
+// -------------------------------------------------------------------
+// 1. SCSS VARIABLES (Chỉ dùng cho logic SCSS, ví dụ: mixins/calculations)
+// -------------------------------------------------------------------
+$padding-base: 16px;
+$border-radius: 8px;
+
+// -------------------------------------------------------------------
+// 2. CSS VARIABLES (Custom Properties) - Dùng để chuyển đổi theme
+// -------------------------------------------------------------------
+
+// Định nghĩa màu mặc định (Light Mode) trong :root
+:root, .light-theme {
+    // Màu sắc Chủ đạo (Primary Color)
+    --color-primary: #264680;     // Xanh VCB cho nút và liên kết
+    --color-secondary: #00CCAA;   // Xanh sáng cho điểm nhấn
+    
+    // Màu Nền và Thẻ (Background & Card)
+    --color-background: #F7F7F7;  // Nền ứng dụng (Rất nhạt)
+    --color-surface: #FFFFFF;     // Nền các thẻ (Card)
+    
+    // Màu Chữ (Text)
+    --color-text-primary: #1C1C1E; // Chữ chính (Đen)
+    --color-text-secondary: #6A6A6A; // Chữ phụ (Xám)
+    
+    // Màu Trạng thái
+    --color-error: #E3342F;       // Đỏ (Chưa thanh toán/Lỗi)
+    --color-success: #38C172;     // Xanh lá (Thành công)
+}
+
+// Định nghĩa màu cho Dark Mode
+.dark-theme {
+    // Màu Chủ đạo (Primary Color) - Thường giữ nguyên hoặc làm sáng hơn
+    --color-primary: #00CCAA;     // Xanh sáng hơn
+    --color-secondary: #3B82F6;
+    
+    // Màu Nền và Thẻ (Background & Card) - PHẢI ĐẢM BẢO TỐI
+    --color-background: #121212;  // Nền tối (Gần như đen)
+    --color-surface: #1E1E1E;     // Nền thẻ tối (Hơi sáng hơn nền)
+    
+    // Màu Chữ (Text) - PHẢI ĐẢM BẢO SÁNG
+    --color-text-primary: #FFFFFF; // Chữ chính (Trắng)
+    --color-text-secondary: #B0B0B0; // Chữ phụ (Xám nhạt)
+    
+    // Màu Trạng thái (Giữ nguyên độ bão hòa)
+    --color-error: #CF6679;
+}
+
+
+// Xuất các biến CSS ra dưới dạng SCSS Variables để dùng trong mixins/calculations
+// Nếu anh cần dùng SCSS cho các phép toán:
+$global-padding: var(--padding-base);

@@ -1,0 +1,38 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  
+  // KHỐI COMPILER OPTIONS NÀY ĐƯỢC CHUYỂN HOÀN TOÀN SANG tsconfig.app.json 
+  // HOẶC ĐẶT Ở ĐÂY NẾU CÁC FILE CON KẾ THỪA (extends) NÓ.
+  // Tuy nhiên, vì mục đích của bạn là sửa lỗi, tôi giữ lại các tùy chọn cần thiết cho Aliasing.
+  "compilerOptions": {
+    // KHÔNG SỬ DỤNG "composite": true Ở ĐÂY
+    // "composite": true, 
+    
+    // Đặt module Resolution theo tiêu chuẩn hiện đại
+    "moduleResolution": "Node16", 
+    "module": "Node16", 
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noEmitOnError": false,
+    "skipLibCheck": true,
+
+    // "types": [
+    //   // THÊM 'jquery' VÀO ĐÂY
+    //   "jquery", 
+    //   "vite/client", 
+    //   "node", 
+    //   "jest", 
+    //   "@testing-library/jest-dom"
+    // ],
+    
+    // CÁC THIẾT LẬP CẦN THIẾT CHO ALIASING
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"] 
+    }
+  },
+}

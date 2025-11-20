@@ -1,0 +1,110 @@
+// src/components/layout/PrimaryBar/PrimaryBar.scss
+
+// Đảm bảo file _variables.scss đã được import
+$primary-menu-height: 100px; // Chiều cao phù hợp với logo
+$primary-blue: #264680;
+$hover-bg-color: #007bff; // Màu xanh sáng của thanh dưới
+
+.primary-bar {
+    // width: 100%;
+    // height: $primary-menu-height; // Chiều cao cố định
+    background-color: white; // Nền trắng
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    z-index: 999;
+    top: var(--dynamic-header-height)
+}
+
+.menu-content {
+    display: flex;
+    justify-content: space-between; // Dàn đều Logo và Menu
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 100%;
+
+}
+
+.logo-section .main-logo {
+    height: 80px; // Kích thước logo
+}
+
+.main-menu {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-item {
+    position: relative;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    padding: 5px 15px;
+
+    a {
+        text-decoration: none;
+        color: #264680; // Màu chữ đậm
+        padding: 5px 0px;
+        transition: color 0.2s;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    &:hover {
+        // 1. THAY ĐỔI MÀU NỀN CHO CẢ ITEM
+        background-color: #264680; // Áp dụng màu nền xanh nhạt
+    }
+
+    &:hover>a {
+        // 2. THAY ĐỔI MÀU CHỮ CHO LINK BÊN TRONG
+        color: white;
+    }
+
+
+
+}
+
+// --- STYLING DROPDOWN ---
+.has-dropdown {
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%; // Đặt ngay dưới menu cha
+        left: 0;
+        background-color: #264680;
+        min-width: 220px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        list-style: none;
+        padding: 0px 0;
+    }
+
+    // HIỂN THỊ DROPDOWN KHI HOVER
+    &:hover .dropdown-menu {
+        display: block;
+    }
+
+    &:hover>a {
+        // 2. THAY ĐỔI MÀU CHỮ CHO LINK BÊN TRONG
+        color: white;
+    }
+
+    .dropdown-menu li {
+        padding: 0;
+
+        a {
+            display: block;
+            padding: 12px 10px;
+            color: white;
+            border-bottom: 0.5px solid gray;
+
+            &:hover {
+                background-color: white;
+                color: #264680;
+            }
+        }
+    }
+}

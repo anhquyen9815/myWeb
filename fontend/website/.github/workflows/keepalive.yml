@@ -1,0 +1,16 @@
+name: 🕒 Keep Render Backend Alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # Chạy mỗi 10 phút
+  workflow_dispatch:          # Cho phép chạy thủ công khi cần
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔗 Ping Render backend
+        run: |
+          echo "Pinging backend to keep it awake..."
+          curl -s -o /dev/null -w "Response: %{http_code}\n" \
+            https://backend-cb16.onrender.com/api/health || true

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- THÊM DÒNG NÀY: Giải quyết lỗi NETSDK1022 Duplicate 'Content' khi publish -->
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Package References hiện có của anh -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <None Update="Data/triggers.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <!-- Giữ lại dòng này: Đảm bảo wwwroot được đóng gói (vì đã tắt tính năng mặc định) -->
+    <Content Include="wwwroot\**" CopyToPublishDirectory="Always" />
+  </ItemGroup>
+
+
+</Project>
