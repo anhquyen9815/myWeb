@@ -15,7 +15,7 @@ const ProductPage: React.FC = () => {
     const { categoryId, categoryName } = location.state as { categoryId: number, categoryName: string } || {};
     const { getFilteredProducts, filteredProducts } = useProductHooks();
     const [page, setPage] = useState<number>(1)
-    const [optionFilter, setOptionFilter] = useState<OptionFilterProduct>({ page, size: 15, categoryId });
+    const [optionFilter, setOptionFilter] = useState<OptionFilterProduct>({ page, size: 10, categoryId });
     const totalProduct = filteredProducts?.total || 0
     const lengthProduct = filteredProducts?.items.length || 0
     const items = [

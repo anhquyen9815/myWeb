@@ -319,3 +319,4 @@
 /src/obj/Debug/net8.0/ref/DienMayLongQuyen.Api.dll
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/obj/Debug/net8.0/DienMayLongQuyen.Api.sourcelink.json
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Debug/net8.0/DienMayLongQuyen.Api.staticwebassets.runtime.json
+/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Debug/net8.0/Seed/longquyen.db

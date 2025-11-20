@@ -13,24 +13,65 @@ var loggerFactory = LoggerFactory.Create(logging =>
 });
 var logger = loggerFactory.CreateLogger("Startup");
 
-// --- CONFIGURE SQLITE RUNTIME PATH & SEED COPY LOGIC ------------------
+// ----------------- ROBUST SQLITE SEED & PATH LOGIC ------------------
 // runtime DB path (bạn có thể set env var SQLITE_DB_PATH nếu muốn khác)
-var dbPath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH")
-             ?? Path.Combine(builder.Environment.ContentRootPath, "longquyen.db");
+var configuredDbPath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH")
+                      ?? Path.Combine(builder.Environment.ContentRootPath, "longquyen.db");
 
 // seed DB path inside image (Dockerfile phải copy Seed/longquyen.db vào image)
 var seedPath = Path.Combine(builder.Environment.ContentRootPath, "Seed", "longquyen.db");
+
 logger.LogInformation("Seed path: {seedPath}", seedPath);
-logger.LogInformation("Target db path: {dbPath}", dbPath);
+logger.LogInformation("Configured target db path: {configuredDbPath}", configuredDbPath);
 logger.LogInformation("Seed exists: {seedExists}", File.Exists(seedPath));
+
+static bool IsDirectoryWritable(string candidateFilePath)
+{
+    try
+    {
+        var dir = Path.GetDirectoryName(candidateFilePath) ?? ".";
+        // Create directory if missing (try-catch to avoid throwing further)
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        // Try write+delete a small temp file
+        var testFile = Path.Combine(dir, $".writetest_{Guid.NewGuid():N}.tmp");
+        File.WriteAllText(testFile, "test");
+        File.Delete(testFile);
+        return true;
+    }
+    catch
+    {
+        return false;
+    }
+}
+
+// Decide final dbPath to use; fallback to /tmp if configured path not writable
+var dbPath = configuredDbPath;
+if (!IsDirectoryWritable(dbPath))
+{
+    var fallback = Path.Combine("/tmp", Path.GetFileName(configuredDbPath) ?? "longquyen.db");
+    logger.LogWarning("Configured DB path '{configured}' is not writable — falling back to '{fallback}'", configuredDbPath, fallback);
+    dbPath = fallback;
+}
+
+logger.LogInformation("Target db path (final): {dbPath}", dbPath);
 logger.LogInformation("Target exists: {dbExists}", File.Exists(dbPath));
 
-
-// create directory for runtime db if needed
+// Ensure directory exists if possible (wrap in try)
 var dbDir = Path.GetDirectoryName(dbPath);
 if (!string.IsNullOrEmpty(dbDir) && !Directory.Exists(dbDir))
 {
-    Directory.CreateDirectory(dbDir);
+    try
+    {
+        Directory.CreateDirectory(dbDir);
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Could not create directory for db path '{dbDir}'.", dbDir);
+    }
 }
 
 // decide whether to force overwrite the runtime DB with seed
@@ -40,35 +81,42 @@ if (File.Exists(seedPath))
 {
     try
     {
-        if (forceSeed)
+        if (!IsDirectoryWritable(dbPath))
         {
-            File.Copy(seedPath, dbPath, overwrite: true);
-            Console.WriteLine($"[DB SEED] FORCE: copied seed DB '{seedPath}' -> '{dbPath}'");
+            logger.LogError("Destination db path '{dbPath}' is not writable. Skipping copy of seed DB.", dbPath);
         }
         else
         {
-            if (!File.Exists(dbPath))
+            if (forceSeed)
             {
-                File.Copy(seedPath, dbPath);
-                Console.WriteLine($"[DB SEED] copied seed DB '{seedPath}' -> '{dbPath}'");
+                File.Copy(seedPath, dbPath, overwrite: true);
+                Console.WriteLine($"[DB SEED] FORCE: copied seed DB '{seedPath}' -> '{dbPath}'");
             }
             else
             {
-                Console.WriteLine($"[DB SEED] runtime DB exists at '{dbPath}', skip copy");
+                if (!File.Exists(dbPath))
+                {
+                    File.Copy(seedPath, dbPath);
+                    Console.WriteLine($"[DB SEED] copied seed DB '{seedPath}' -> '{dbPath}'");
+                }
+                else
+                {
+                    Console.WriteLine($"[DB SEED] runtime DB exists at '{dbPath}', skip copy");
+                }
             }
-        }
 
-        // Attempt to set permissive permissions on Linux so the app can write
-        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
-        {
-            try
+            // Attempt to set permissive permissions on Linux so the app can write
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
             {
-                var p = System.Diagnostics.Process.Start("chmod", $"666 \"{dbPath}\"");
-                p?.WaitForExit();
-            }
-            catch
-            {
-                // ignore chmod failure
+                try
+                {
+                    var p = System.Diagnostics.Process.Start("chmod", $"666 \"{dbPath}\"");
+                    p?.WaitForExit();
+                }
+                catch
+                {
+                    // ignore chmod failure
+                }
             }
         }
     }
@@ -95,8 +143,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        policy => policy
-            .AllowAnyOrigin()
+        policy => policy            .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -117,22 +164,55 @@ app.UseStaticFiles();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    // var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
 
-        // Chỉ auto-apply migrations trong Development
-        var applyMigrations = app.Environment.IsDevelopment();
+        // Quyết định có nên apply migrations tự động hay không (mặc định chỉ true ở Development)
+        var wantApplyMigrations = app.Environment.IsDevelopment();
+        logger.LogInformation("Initial applyMigrations desired (from env): {want}", wantApplyMigrations);
 
-        if (applyMigrations)
+        // Inspect DB: có __EFMigrationsHistory? có bất kỳ bảng nào?
+        bool dbHasMigrationsHistory = false;
+        bool dbHasAnyTables = false;
+        try
         {
-            logger.LogInformation("Environment is Development: migrations will be applied by DatabaseInitializer.");
+            var conn = context.Database.GetDbConnection();
+            conn.Open();
+
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='__EFMigrationsHistory';";
+                var result = cmd.ExecuteScalar();
+                dbHasMigrationsHistory = Convert.ToInt32(result) > 0;
+            }
+
+            using (var cmd2 = conn.CreateCommand())
+            {
+                cmd2.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';";
+                var r2 = cmd2.ExecuteScalar();
+                dbHasAnyTables = Convert.ToInt32(r2) > 0;
+            }
+
+            conn.Close();
         }
-        else
+        catch (Exception ex)
         {
-            logger.LogInformation("Environment is Production/non-Development: migrations will NOT be auto-applied.");
+            logger.LogWarning(ex, "Could not inspect database for migration history — assuming safe default.");
         }
+
+        // Logic:
+        // - nếu không có __EFMigrationsHistory nhưng DB đã có bảng (khả năng là seed DB), thì không auto-apply migrations
+        // - nếu có __EFMigrationsHistory thì an toàn để apply migrations (DB được EF quản lý trước đó)
+        var applyMigrations = wantApplyMigrations;
+
+        if (wantApplyMigrations && !dbHasMigrationsHistory && dbHasAnyTables)
+        {
+            logger.LogWarning("DB file contains tables but no __EFMigrationsHistory table -> skipping auto-apply migrations to avoid 'table already exists' errors.");
+            applyMigrations = false;
+        }
+
+        logger.LogInformation("Final applyMigrations decision: {apply}", applyMigrations);
 
         // DatabaseInitializer xử lý: (tuỳ chọn) apply migrations và chạy triggers
         await DatabaseInitializer.InitializeAsync(context, logger, applyMigrations);
@@ -142,7 +222,6 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        // var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
         var log = loggerFactory.CreateLogger<Program>();
         log.LogError(ex, "An error occurred while initializing the database.");
         // Tuỳ chọn: throw; // để app không start nếu DB init thất bại
@@ -151,7 +230,6 @@ using (var scope = app.Services.CreateScope())
 // ---------------------------------------------------------------
 
 // Cấu hình pipeline
-// Cho phép bật Swagger tạm qua biến môi trường ENABLE_SWAGGER=true
 var enableSwagger = builder.Configuration.GetValue<bool>("ENABLE_SWAGGER", false);
 
 if (enableSwagger || app.Environment.IsDevelopment())
@@ -164,7 +242,6 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthorization();
 
-// BẮT ĐẦU CẤU HÌNH ROUTING ĐẦY ĐỦ CHO SPA FALLBACK
 app.UseRouting();
 app.MapControllers();
 

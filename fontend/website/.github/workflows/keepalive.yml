@@ -14,3 +14,9 @@ jobs:
           echo "Pinging backend to keep it awake..."
           curl -s -o /dev/null -w "Response: %{http_code}\n" \
             https://backend-cb16.onrender.com/api/health || true
+
+      - name: 🔗 Ping Render backend 2
+        run: |
+          echo "Pinging backend to keep it awake..."
+          curl -s -o /dev/null -w "Response: %{http_code}\n" \
+            https://dienmaylongquyen.onrender.com/api/health || true

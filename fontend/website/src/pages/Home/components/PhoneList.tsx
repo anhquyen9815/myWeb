@@ -143,13 +143,13 @@ const PhoneList: React.FC<PhoneListProps> = ({ title = "ĐIỆN THOẠI", catego
                 {filteredProducts?.items.map((p: Product, index: number) => (<ProductItem product={p} index={index} />))}
                 <Box sx={{ display: 'flex', alignItems: 'center', px: '10px' }}>
                     <Button
-                        sx={{ px: '10px', py: '5px', width: '100px' }}
+                        sx={{ px: '10px', py: '5px', width: '150px',  textTransform: 'none' }}
                         onClick={handleClickAll}
                         variant="contained"
                         color="primary"
                         endIcon={<SaveIcon />}
                         size='medium'>
-                        ...
+                        Xem tất cả
                     </Button>
                 </Box>
 
