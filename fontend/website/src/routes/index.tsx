@@ -16,6 +16,7 @@ import ProductPage from '@/pages/ProductPage/ProductPage';
 import AddAttributeDefinitionForm from '@/pages/AttributeDefinition/AddAttributeDefinitionForm';
 import { ProductUpdateGalleryScreen } from '@/pages/ProductUpdateGallery/ProductUpdateGallery';
 import { WarrantyManagerScreen } from '@/pages/WarrantyManager/WarrantyManager';
+import { ProductModelGroupManagerScreen } from '@/pages/ProductModelGroupManager/ProductModelGroup';
 
 const AppRoutes: React.FC = () => (
     <Routes>
@@ -24,19 +25,20 @@ const AppRoutes: React.FC = () => (
 
             {/* ROUTE CON 1: Trang chủ (Index) - Render trong <Outlet /> */}
             <Route index element={<HomeScreen />} />
-            <Route path={SCREEN_PATH.PRODUCTMANAGER} element={<ProductManager />} />
-            <Route path={SCREEN_PATH.BRANDMANAGER} element={<BrandManager />} />
-            <Route path={SCREEN_PATH.ADDPRODUCT} element={<AddProductForm />} />
+            <Route path={SCREEN_PATH.PRODUCT_MANAGER} element={<ProductManager />} />
+            <Route path={SCREEN_PATH.BRAND_MANAGER} element={<BrandManager />} />
+            <Route path={SCREEN_PATH.ADD_PRODUCT} element={<AddProductForm />} />
             <Route path={SCREEN_PATH.ADMIN} element={<AdminScreen />} />
-            {/* <Route path={SCREEN_PATH.PRODUCTDETAIL} element={<ProductDetail />} /> */}
+            {/* <Route path={SCREEN_PATH.PRODUCT_DETAIL} element={<ProductDetail />} /> */}
             <Route path="/:categorySlug/:productSlug" element={<ProductDetail />} />
-            <Route path={SCREEN_PATH.PRODUCTPAGE} element={<ProductPage />} />
-            <Route path={SCREEN_PATH.ATTRIBUTEADD} element={<AddAttributeDefinitionForm />} />
+            <Route path={SCREEN_PATH.PRODUCT_PAGE} element={<ProductPage />} />
+            <Route path={SCREEN_PATH.ATTRIBUTE_ADD} element={<AddAttributeDefinitionForm />} />
 
-            <Route path={SCREEN_PATH.ADDLISTPRODUCT} element={<ProductAddNewListScreen />} />
-            <Route path={SCREEN_PATH.PRODUCTUPDATEGALLERY} element={<ProductUpdateGalleryScreen />} />
-            <Route path={SCREEN_PATH.BRANDCATEGORYCREAT} element={<BrandCategoryCreate />} />
-            <Route path={SCREEN_PATH.WARRANTYMANAGER} element={<WarrantyManagerScreen />} />
+            <Route path={SCREEN_PATH.ADD_LIST_PRODUCT} element={<ProductAddNewListScreen />} />
+            <Route path={SCREEN_PATH.PRODUCT_UPDATE_GALLERY} element={<ProductUpdateGalleryScreen />} />
+            <Route path={SCREEN_PATH.BRAND_CATEGORY_CREAT} element={<BrandCategoryCreate />} />
+            <Route path={SCREEN_PATH.WARRANTY_MANAGER} element={<WarrantyManagerScreen />} />
+            <Route path={SCREEN_PATH.PRODUCT_MODEL_GROUP_MANAGER} element={<ProductModelGroupManagerScreen />} />
 
         </Route>
 

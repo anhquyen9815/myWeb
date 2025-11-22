@@ -12,8 +12,9 @@ import AutorenewOutlinedIcon from "@mui/icons-material/AutorenewOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BuildOutlinedIcon from "@mui/icons-material/BuildOutlined";
+import type { Warranty } from "@/types/warranty";
 
-const CommitmentCard: React.FC = () => {
+const CommitmentCard: React.FC<{ warranty?: Warranty, categoryId?: number }> = ({ warranty, categoryId }) => {
   const theme = useTheme();
 
   return (
@@ -48,17 +49,10 @@ const CommitmentCard: React.FC = () => {
               flexShrink: 0,
             }}
           >
-            <AutorenewOutlinedIcon />
+            <SecurityOutlinedIcon />
           </SvgIcon>
           <Typography variant="subtitle2" sx={{ lineHeight: 1.6 }}>
-            Hư gì đổi nấy <b>12 tháng</b> tận nhà (miễn phí tháng đầu){" "}
-            {/* <Typography
-              component="span"
-              color="primary"
-              sx={{ fontWeight: 500, cursor: "pointer" }}
-            >
-              Xem chi tiết
-            </Typography> */}
+            Bảo hành <b>chính hãng {warranty?.periodMonths} tháng</b>, có người đến tận nhà{" "}
           </Typography>
         </Box>
 
@@ -72,25 +66,23 @@ const CommitmentCard: React.FC = () => {
               flexShrink: 0,
             }}
           >
-            <SecurityOutlinedIcon />
+            <BuildOutlinedIcon />
           </SvgIcon>
-          <Typography variant="subtitle2" sx={{ lineHeight: 1.6 }}>
-            Bảo hành <b>chính hãng 2 năm</b>, có người đến tận nhà{" "}
-            {/* <Typography
-              component="span"
-              color="primary"
-              sx={{ fontWeight: 500, cursor: "pointer" }}
-            >
-              Xem chi tiết bảo hành
-            </Typography> */}
+          {categoryId != 4 ? <Typography variant="subtitle2" sx={{ lineHeight: 1.6 }}>
+            <b>Lắp đặt miễn phí</b> lúc giao hàng
           </Typography>
+            : <Typography variant="subtitle2" sx={{ lineHeight: 1.6 }}>
+              Liên hệ <b>093 686 2366</b> để được báo giá lắp đặt.
+            </Typography>
+          }
         </Box>
+
       </Stack>
 
-      <Divider sx={{ my: 1 }} />
+      {/* <Divider sx={{ my: 1 }} /> */}
 
       {/* Khối 2 */}
-      <Stack
+      {/* <Stack
         direction={{ xs: "column", sm: "row" }}
         justifyContent="space-between"
         spacing={2}
@@ -127,12 +119,12 @@ const CommitmentCard: React.FC = () => {
             thì không được bảo hành.
           </Typography>
         </Box>
-      </Stack>
+      </Stack> */}
 
-      <Divider sx={{ my: 1 }} />
+      {/* <Divider sx={{ my: 1 }} /> */}
 
       {/* Khối 3 */}
-      <Box display="flex" alignItems="flex-start" gap={1.5}>
+      {/* <Box display="flex" alignItems="flex-start" gap={1.5}>
         <SvgIcon
           sx={{
             color: theme.palette.primary.main,
@@ -146,7 +138,7 @@ const CommitmentCard: React.FC = () => {
         <Typography variant="subtitle2" sx={{ lineHeight: 1.6 }}>
           <b>Lắp đặt miễn phí</b> lúc giao hàng
         </Typography>
-      </Box>
+      </Box> */}
     </Paper>
   );
 };

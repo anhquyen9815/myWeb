@@ -1,5 +1,6 @@
 // src/data/footerData.ts (Hoặc định nghĩa trong Component)
-
+import facebook from '@/assets/social/facebook.png';
+import zalo from '@/assets/social/zalo.png';
 // Liên kết Thông tin bổ sung
 export const additionalLinks = [
   { label: 'Đăng ký dịch vụ', href: '#' },
@@ -12,13 +13,12 @@ export const additionalLinks = [
 
 // Liên kết Liên hệ
 export const contactLinks = [
-  { label: 'Mua hàng', phone: '093 686 2366' },
-  { label: 'Bảo hành', phone: '036 300 5549' },
+  { label: 'Mua hàng', phone: '093 686 2366 - 036 300 5549' },
+  { label: 'Kỹ thuật', phone: '0988 389 386' },
 ];
 
 // Liên kết Mạng xã hội
 export const socialLinks = [
-  { name: 'Facebook', icon: '/assets/social/facebook.svg', href: 'https://facebook.com', bgcolor: '#3b5998' },
-  { name: 'Zalo', icon: '/assets/social/zalo.svg', href: 'https://zalo.me', bgcolor: '#0180c7' },
-  { name: 'Youtube', icon: '/assets/social/youtube.svg', href: 'https://youtube.com', bgcolor: '#c4302b' },
+  { name: 'Facebook', icon: facebook, href: 'https://www.facebook.com/profile.php?id=61563078110662', bgcolor: '#3b5998' },
+  { name: 'Zalo', icon: zalo, href: 'https://zalo.me/0936862366', bgcolor: '#0180c7' },
 ];

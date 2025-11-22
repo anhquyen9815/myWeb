@@ -20,7 +20,7 @@ const ProductItem: React.FC<{ product: Product, index: number }> = ({ product, i
     const navigate = useNavigate();
     const handleClick = (product: Product) => {
         navigate(`/${product.category?.slug}/${product.slug}`, {
-            state: { product: product }, // 👈 truyền props qua state
+            state: { productId: product.id }, // 👈 truyền props qua state
         });
     };
 

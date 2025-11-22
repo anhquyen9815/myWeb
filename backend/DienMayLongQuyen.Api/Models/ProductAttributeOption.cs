@@ -10,6 +10,9 @@ namespace DienMayLongQuyen.Api.Models
 
         public int AttributeOptionId { get; set; }
         public AttributeOption AttributeOption { get; set; }
+
+        public int AttributeDefinitionId { get; set; }
+        public AttributeDefinition AttributeDefinition { get; set; }
     }
 
 

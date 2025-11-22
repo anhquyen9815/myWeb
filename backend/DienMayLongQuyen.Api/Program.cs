@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using System;
+using Microsoft.Data.Sqlite;
 
 // Top-level app
 var builder = WebApplication.CreateBuilder(args);
@@ -48,13 +49,13 @@ static bool IsDirectoryWritable(string candidateFilePath)
     }
 }
 
-// Decide final dbPath to use; fallback to /tmp if configured path not writable
 var dbPath = configuredDbPath;
+
+// KHÔNG FALLBACK SANG /tmp — CHỈ LOG WARNING
 if (!IsDirectoryWritable(dbPath))
 {
-    var fallback = Path.Combine("/tmp", Path.GetFileName(configuredDbPath) ?? "longquyen.db");
-    logger.LogWarning("Configured DB path '{configured}' is not writable — falling back to '{fallback}'", configuredDbPath, fallback);
-    dbPath = fallback;
+    logger.LogWarning("SQLite DB path is not writable: {dbPath}.", dbPath);
+    // => Nhưng KHÔNG thay đổi dbPath
 }
 
 logger.LogInformation("Target db path (final): {dbPath}", dbPath);
@@ -131,13 +132,18 @@ else
 }
 // --------------------------------------------------------------------
 
+// IMPORTANT: ensure the ConnectionStrings:DefaultConnection is set to the final dbPath
+// This makes design-time tools (dotnet ef) pick the same DB without needing --connection
+var finalConn = $"Data Source={dbPath}";
+builder.Configuration["ConnectionStrings:DefaultConnection"] = finalConn;
+
 // Add services to the container
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Kết nối SQLite — dùng dbPath đã chuẩn bị ở trên
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+    options.UseSqlite(finalConn));
 
 // CORS cho React (http://localhost:5173 hoặc http://localhost:3000)
 builder.Services.AddCors(options =>
@@ -224,7 +230,7 @@ using (var scope = app.Services.CreateScope())
     {
         var log = loggerFactory.CreateLogger<Program>();
         log.LogError(ex, "An error occurred while initializing the database.");
-        // Tuỳ chọn: throw; // để app không start nếu DB init thất bại
+        // Tuỳ option: throw; // để app không start nếu DB init thất bại
     }
 }
 // ---------------------------------------------------------------

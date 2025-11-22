@@ -13,8 +13,9 @@ import {
 import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 
+
 // Import dữ liệu từ file riêng (hoặc định nghĩa trực tiếp)
-import {  contactLinks, socialLinks } from '@/data/footerData';
+import { contactLinks, socialLinks } from '@/data/footerData';
 
 const AppFooter: React.FC = () => {
     return (
@@ -126,7 +127,7 @@ const AppFooter: React.FC = () => {
                     {/* Nút Like/Share (Chỉ dùng Placeholder Icon) */}
                     <Stack direction="row" spacing={1} alignItems="center" mb={4}>
                         <Button variant="contained" size="small" sx={{ bgcolor: '#3b5998', '&:hover': { bgcolor: '#2d4373' }, textTransform: 'none' }}>
-                            <FacebookIcon sx={{ fontSize: 16, mr: 0.5 }} /> Thích 1.1K
+                            <FacebookIcon sx={{ fontSize: 16, mr: 0.5 }} /> Thích 1.8K
                         </Button>
                         <Button variant="contained" size="small" sx={{ bgcolor: '#00acee', '&:hover': { bgcolor: '#008bb2' }, textTransform: 'none' }}>
                             Chia sẻ
@@ -140,7 +141,7 @@ const AppFooter: React.FC = () => {
                         {socialLinks.map((social, index) => (
                             <MuiLink href={social.href} target="_blank" rel="noopener noreferrer" key={index}>
                                 {/* Dùng ảnh SVG cục bộ cho Zalo */}
-                                {social.name === 'Zalo' ? (
+                                {/* {social.name === 'Zalo' ? (
                                     <Box sx={{ width: 32, height: 32, bgcolor: social.bgcolor, borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                         <img src={social.icon} alt={social.name} style={{ width: 20, height: 20 }} />
                                     </Box>
@@ -150,7 +151,10 @@ const AppFooter: React.FC = () => {
                                         {social.name === 'Facebook' && <FacebookIcon />}
                                         {social.name === 'Youtube' && <YouTubeIcon />}
                                     </IconButton>
-                                )}
+                                )} */}
+                                <Box sx={{ width: 42, height: 42, bgcolor: 'white', boxShadow: 2, borderRadius: '20%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <img src={social.icon} alt={social.name} style={{ width: 30, height: 30 }} />
+                                </Box>
                             </MuiLink>
                         ))}
                     </Stack>

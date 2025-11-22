@@ -45,6 +45,7 @@ namespace DienMayLongQuyen.Api.Controllers
             var product = await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
+                .Include(p => p.Warranty)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -201,6 +202,7 @@ namespace DienMayLongQuyen.Api.Controllers
             [FromQuery] string? keysearch,
             [FromQuery] int? brandId,
             [FromQuery] int? categoryId,
+            [FromQuery] int? ProductModelGroupId,
             [FromQuery] SortField? sortBy,
             [FromQuery] SortOrder? sortOrder,
             [FromQuery] string? attributeFilters,
@@ -213,9 +215,9 @@ namespace DienMayLongQuyen.Api.Controllers
                 var query = _context.Products
                     .Include(p => p.Brand)
                     .Include(p => p.Category)
+                    .Include(p => p.Warranty)
+                    .AsNoTracking()
                     .AsQueryable();
-
-
 
                 if (!string.IsNullOrWhiteSpace(keysearch))
                 {
@@ -227,6 +229,11 @@ namespace DienMayLongQuyen.Api.Controllers
                 if (brandId.HasValue && brandId > 0)
                 {
                     query = query.Where(p => p.BrandId == brandId);
+                }
+
+                if (ProductModelGroupId.HasValue && ProductModelGroupId > 0)
+                {
+                    query = query.Where(p => p.ProductModelGroupId == ProductModelGroupId);
                 }
 
                 if (categoryId.HasValue && categoryId > 0)
@@ -294,6 +301,17 @@ namespace DienMayLongQuyen.Api.Controllers
                 }
 
                 var data = await query
+                    .Select(x => new ProductShortDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Price = x.Price,
+                        DiscountPrice = x.DiscountPrice ?? 0,
+                        DiscountPercent = x.DiscountPercent ?? 0,
+                        Category = x.Category,
+                        Slug = x.Slug,
+                        Image = x.Image,
+                    })
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -398,6 +416,95 @@ namespace DienMayLongQuyen.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Đã xảy ra lỗi khi lưu dữ liệu", error = ex.Message });
+            }
+        }
+
+        [HttpGet("debug/sqlite")]
+        public IActionResult DebugSqlite()
+        {
+            var conn = _context.Database.GetDbConnection();
+
+            string raw = conn.ConnectionString;
+            string provider = _context.Database.ProviderName;
+
+            string resolvedPath = "(not sqlite)";
+            if (conn is Microsoft.Data.Sqlite.SqliteConnection)
+            {
+                var builder = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(raw);
+                resolvedPath = System.IO.Path.GetFullPath(builder.DataSource);
+            }
+
+            return Ok(new
+            {
+                Provider = provider,
+                ConnectionString = raw,
+                DatabaseFileResolved = resolvedPath,
+                CurrentWorkingDirectory = System.IO.Directory.GetCurrentDirectory()
+            });
+        }
+
+
+        [HttpGet("group")]
+        public async Task<ActionResult> GetGroupProducts(
+                    [FromQuery] int? size,
+                    [FromQuery] int? page,
+                    [FromQuery] string? keysearch,
+                    [FromQuery] int? ProductModelGroupId
+                    )
+        {
+            try
+            {
+                var query = _context.Products
+                    .Include(p => p.Brand)
+                    .Include(p => p.Category)
+                    .AsNoTracking()
+                    .AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(keysearch))
+                {
+                    query = query.Where(p =>
+                        p.Name.Contains(keysearch) ||
+                        p.Code.Contains(keysearch));
+                }
+
+                if (ProductModelGroupId.HasValue && ProductModelGroupId > 0)
+                {
+                    query = query.Where(p => p.ProductModelGroupId == ProductModelGroupId);
+                }
+
+                var totalCount = await query.CountAsync();
+                int pageSize = size ?? 10;
+                int pageNumber = page ?? 1;
+
+                var data = await query
+                    .Select(x => new ProductShortGroupDto
+                    {
+                        Id = x.Id,
+                        Image = x.Image,
+                        PrimaryAttributeLabel = x.ProductAttributeOptions
+            .Where(pao => pao.AttributeDefinition != null &&
+                          pao.AttributeDefinition.IsPrimary)
+            .Select(pao => pao.AttributeOption.Label)
+            .FirstOrDefault()
+                    })
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    total = totalCount,
+                    page = pageNumber,
+                    size = pageSize,
+                    items = data
+                });
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi ra console (bạn có thể dùng ILogger nếu có sẵn)
+                Console.WriteLine("Lỗi khi lấy sản phẩm có filter: " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
             }
         }
 

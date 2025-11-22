@@ -4,6 +4,8 @@ public class ProductAttributeOptionCreateDto
 {
     public int ProductId { get; set; }
     public int AttributeOptionId { get; set; }
+    public int AttributeDefinitionId { get; set; }
+    
 }
 
 
@@ -12,6 +14,7 @@ public class ProductAttributeOptionUpdateDto
     public int Id { get; set; }
     public int ProductId { get; set; }
     public int AttributeOptionId { get; set; }
+    public int AttributeDefinitionId { get; set; }
 }
 
 public class ProductAttributeOptionDto
@@ -27,6 +30,7 @@ public class ProductAttributeOptionDto
     public class AssignOptionToProductsRequest
 {
     public int OptionId { get; set; }
+    public int AttributeDefinitionId { get; set; }
     public bool ReplaceSameAttribute { get; set; }
     public int[] ProductIds { get; set; }
 }

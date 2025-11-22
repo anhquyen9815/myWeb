@@ -9,7 +9,7 @@
 
 // useProduct.ts
 import { useApi } from '@/api/useApi';
-import { bulkInsertProducts, productsWithFilter, bulkUpdateGallery } from '@/api/apiProduct';
+import { bulkInsertProducts, productsWithFilter, bulkUpdateGallery, productsWithGroup } from '@/api/apiProduct';
 import type { Product, CreateProductDTO, UpdateProductDTO, OptionFilterProduct, Response, UpdateGalleryDTO } from '@/types/product';
 import { useState } from 'react';
 
@@ -18,6 +18,7 @@ export const useProductHooks = () => {
   const [loadingBulk, setLoadingBulk] = useState(false);
   const [loadingFilter, setLoadingFilter] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState<Response>();
+  const [groupProducts, setGroupProducts] = useState<Response>();
 
   // 🧩 Thêm danh sách sản phẩm mới (bỏ qua mã trùng)
   const importProducts = async (list: CreateProductDTO[]) => {
@@ -33,7 +34,7 @@ export const useProductHooks = () => {
     }
   };
 
-    // 🧩 Thêm danh sách sản phẩm mới (bỏ qua mã trùng)
+  // 🧩 Thêm danh sách sản phẩm mới (bỏ qua mã trùng)
   const updateGalleryProducts = async (list: UpdateGalleryDTO[]) => {
     setLoadingBulk(true);
     try {
@@ -47,7 +48,7 @@ export const useProductHooks = () => {
     }
   };
 
-  
+
 
   // 🧩 Lấy danh sách sản phẩm với filter
   const getFilteredProducts = async (option: OptionFilterProduct) => {
@@ -71,7 +72,22 @@ export const useProductHooks = () => {
       }
       return data;
     } catch (err: any) {
-      console.error(' Lấy sản phẩm với filter lỗi:', err);
+      console.error('Quyen Lấy sản phẩm với filter lỗi:', err);
+      return [];
+    } finally {
+      setLoadingFilter(false);
+    }
+  };
+
+  // 🧩 Lấy danh sách sản phẩm với filter
+  const getGroupProducts = async (option: OptionFilterProduct) => {
+    setLoadingFilter(true);
+    try {
+      const data = await productsWithGroup(option);
+      setGroupProducts(data);
+      return data;
+    } catch (err: any) {
+      console.error('Quyen Lấy sản phẩm với filter lỗi:', err);
       return [];
     } finally {
       setLoadingFilter(false);
@@ -87,6 +103,8 @@ export const useProductHooks = () => {
     getFilteredProducts, // hàm lấy danh sách theo filter
     filteredProducts, // dữ liệu filter
     loadingFilter, // trạng thái loading filter
-    updateGalleryProducts
+    updateGalleryProducts,
+    groupProducts,
+    getGroupProducts
   };
 };

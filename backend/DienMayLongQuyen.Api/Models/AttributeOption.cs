@@ -17,5 +17,6 @@ namespace DienMayLongQuyen.Api.Models
         public int DisplayOrder { get; set; }
 
         public ICollection<ProductAttributeOption> ProductAttributeOptions { get; set; }
+
     }
 }

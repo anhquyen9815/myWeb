@@ -47,12 +47,12 @@ const PrimaryBarComponent: React.FC = () => {
     { label: 'ADMIN', path: SCREEN_PATH.ADMIN,
        hasDropdown: true,
       dropdownItems: [
-        { label: 'Sản phẩm', path: SCREEN_PATH.PRODUCTMANAGER },
-        { label: 'Thương hiệu', path: SCREEN_PATH.BRANDMANAGER },
-        { label: 'Thêm sản phẩm', path: SCREEN_PATH.ADDPRODUCT },
+        { label: 'Sản phẩm', path: SCREEN_PATH.PRODUCT_MANAGER },
+        { label: 'Thương hiệu', path: SCREEN_PATH.BRAND_MANAGER },
+        { label: 'Thêm sản phẩm', path: SCREEN_PATH.ADD_PRODUCT },
       ]
      },
-    { label: 'SẢN PHẨM', path: SCREEN_PATH.PRODUCTMANAGER },
+    { label: 'SẢN PHẨM', path: SCREEN_PATH.PRODUCT_MANAGER },
     { label: 'LIÊN HỆ', path: '/lien-he' },
     { label: 'HỎI ĐÁP', path: '/hoi-dap' },
   ];

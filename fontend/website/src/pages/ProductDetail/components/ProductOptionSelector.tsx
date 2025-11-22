@@ -14,9 +14,9 @@ import {
 import type { Product } from "@/types/product";
 
 interface OptionItem {
-    label: string;
-    price: number;
-    image?: string;
+    label?: string;
+    image: string;
+    idProduct: number;
 }
 
 interface WarrantyOption {
@@ -29,26 +29,21 @@ interface ProductOptionSelectorProps {
     rating?: number;
     reviewCount?: number;
     versions: OptionItem[];
-    colors: OptionItem[];
-    warranties: WarrantyOption[];
     onOrder?: () => void;
-    productDetail: Product
+    productDetail: Product;
+    onSelect: (idProduct: number) => void;
 }
 
 const ProductOptionSelector: React.FC<ProductOptionSelectorProps> = ({
     rating = 5,
     reviewCount = 0,
     versions,
-    colors,
-    warranties,
     onOrder,
-    productDetail
+    productDetail,
+    onSelect
 }) => {
-    const [version, setVersion] = React.useState(versions[0].label);
-    const [color, setColor] = React.useState(colors[0].label);
-    const [warranty, setWarranty] = React.useState(
-        warranties.find((w) => w.isDefault)?.label || warranties[0].label
-    );
+    const [version, setVersion] = React.useState('');
+
 
     return (
         <Paper sx={{ p: 3, borderRadius: 3, width: "100%", maxWidth: 500 }}>
@@ -100,75 +95,75 @@ const ProductOptionSelector: React.FC<ProductOptionSelectorProps> = ({
                 <Typography variant="subtitle1" fontWeight={600} mb={1}>
                     Phiên bản khác
                 </Typography>
-                <ToggleButtonGroup
-                    exclusive
-                    value={version}
-                    onChange={(_, v) => v && setVersion(v)}
-                    // sx={{ flexWrap: "wrap", gap: 2 }}
-                    sx={{
-                        gap: 1,
-                        flexWrap: "wrap",
-                        "& .MuiToggleButtonGroup-grouped": {
-                            borderLeft: "1px solid",
-                            borderColor: "divider", // hoặc custom màu bạn muốn
-                            marginLeft: 0,
-                            "&:not(:first-of-type)": {
-                                borderLeft: "1px solid",
-                                borderColor: "divider",
+
+                {versions.map((v) => (
+                    <ToggleButton
+                        key={v.label}
+                        value={v.label || ''}
+                        onClick={() => onSelect(v.idProduct)}
+                        sx={{
+                            p: 0.5,
+                            mr: 2,
+                            mt: 1,
+                            position: "relative",
+                            // borderRadius: 2,
+                            borderColor: productDetail.id === v.idProduct ? "error.main" : "divider",
+                            // borderColor: "error.main",
+                            color: productDetail.id === v.idProduct ? "error.main" : "text.primary",
+                            // bgcolor: productDetail.id === v.idProduct ? "rgba(255,0,0,0.05)" : "transparent",
+                            "&.Mui-selected": {
+                                bgcolor: "rgba(255,0,0,0.05)",
+                                borderColor: "error.main",
                             },
-                        },
-                    }}
+                            "&:hover": {
+                                borderColor: "error.light",
+                            },
 
-                >
-                    {versions.map((v) => (
-                        <ToggleButton
-                            key={v.label}
-                            value={v.label}
-                            sx={{
-                                position: "relative",
-                                borderRadius: 2,
-                                borderColor: version === v.label ? "error.main" : "divider",
-                                color: version === v.label ? "error.main" : "text.primary",
-                                bgcolor: version === v.label ? "rgba(255,0,0,0.05)" : "transparent",
-                                "&.Mui-selected": {
-                                    bgcolor: "rgba(255,0,0,0.05)",
-                                    borderColor: "error.main",
-                                },
-                                "&:hover": {
-                                    borderColor: "error.light",
-                                },
-
-                            }}
-                        >
-                            {/* ✅ Dấu tick hiển thị khi chọn */}
-                            {version === v.label && (
-                                <Box
-                                    sx={{
-                                        position: "absolute",
-                                        top: 2,
-                                        right: 2,
-                                        width: 14,
-                                        height: 14,
-                                        borderRadius: "50%",
-                                        bgcolor: "error.main",
-                                        color: "white",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: 12,
-                                    }}
-                                >
-                                    ✓
-                                </Box>
-                            )}
-
-                            <Box textAlign="center" px={1}>
-                                <Typography fontWeight={600}>{v.label}</Typography>
+                        }}
+                    >
+                        {/* ✅ Dấu tick hiển thị khi chọn */}
+                        {productDetail.id === v.idProduct && (
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    top: 2,
+                                    right: 2,
+                                    width: 14,
+                                    height: 14,
+                                    borderRadius: "50%",
+                                    bgcolor: "error.main",
+                                    color: "white",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 12,
+                                }}
+                            >
+                                ✓
                             </Box>
-                        </ToggleButton>
-                    ))}
+                        )}
 
-                </ToggleButtonGroup>
+                        <Box textAlign="center" px={1} textTransform={'none'}>
+                            {v.label ? <Typography fontWeight={600}>{v.label}</Typography>
+                                : <Box
+                                    component="img"
+                                    src={v.image}
+                                    // alt={`thumb-${i}`}
+                                    loading={'lazy'}
+                                    sx={{
+                                        width: "50px",          // ảnh nhỏ hơn ô, nằm giữa
+                                        // height: "50px",
+                                        objectFit: "contain", // giữ nguyên tỉ lệ
+                                        display: "block",
+                                        userSelect: "none",
+                                        pointerEvents: "none",
+                                    }}
+                                />}
+
+                        </Box>
+                    </ToggleButton>
+                ))}
+
             </Box>
 
             {/* Màu sắc */}
@@ -229,7 +224,7 @@ const ProductOptionSelector: React.FC<ProductOptionSelectorProps> = ({
                 }}
                 onClick={onOrder}
             >
-                Liên hệ 093-686-2366 để nhận hàng
+                Liên hệ 093.686.2366 để nhận hàng
             </Button>
         </Paper>
     );

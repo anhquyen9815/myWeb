@@ -48,13 +48,13 @@ const PhoneList: React.FC<PhoneListProps> = ({ title = "ĐIỆN THOẠI", catego
     // );
 
     const handleClick = () => {
-        navigate(SCREEN_PATH.PRODUCTPAGE, {
+        navigate(SCREEN_PATH.PRODUCT_PAGE, {
             state: { categoryId, categoryName: title }, // 👈 truyền props qua state
         });
     };
 
      const handleClickAll = () => {
-                navigate(SCREEN_PATH.PRODUCTPAGE, {
+                navigate(SCREEN_PATH.PRODUCT_PAGE, {
                     state: {categoryId, categoryName}, // 👈 truyền props qua state
                 });
             };

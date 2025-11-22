@@ -25,6 +25,7 @@ namespace DienMayLongQuyen.Api.Data
         public DbSet<ProductAttributeOption> ProductAttributeOptions { get; set; }
         public DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
         public DbSet<Warranty> Warranties { get; set; }
+        public DbSet<ProductModelGroup> ProductModelGroups { get; set; }
         // public DbSet<ProductWarranty> ProductWarranties { get; set; }
 
 
@@ -71,7 +72,7 @@ namespace DienMayLongQuyen.Api.Data
                 .HasForeignKey(p => p.BrandId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-                // Product - Warranty (1-n)
+            // Product - Warranty (1-n)
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Warranty)
                 .WithMany(w => w.Products)
@@ -85,6 +86,32 @@ namespace DienMayLongQuyen.Api.Data
                 .WithMany(p => p.Specs)
                 .HasForeignKey(s => s.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Product - ProductModelGroup (1-n)
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.ProductModelGroup)
+                .WithMany(b => b.Products)
+                .HasForeignKey(p => p.ProductModelGroupId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProductModelGroup>()
+                .HasOne(x => x.Brand)
+                .WithMany()
+                .HasForeignKey(x => x.BrandId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ProductModelGroup>()
+                .HasOne(x => x.Category)
+                .WithMany()
+                .HasForeignKey(x => x.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ProductAttributeOption>()
+                .HasOne(p => p.AttributeDefinition)
+                .WithMany(b => b.ProductAttributeOptions)
+                .HasForeignKey(p => p.AttributeDefinitionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             // ------------------------------------------
             // GIÁ TRỊ MẶC ĐỊNH CHO CreatedAt (SQLite friendly)

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import {  useTheme,  Box, Stack, useMediaQuery } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useTheme, Box, Stack, useMediaQuery } from '@mui/material';
 import ProductImageGallery from './components/ProductImageGallery';
 import { useLocation } from "react-router-dom";
 import type { Product } from '@/types/product'
@@ -8,28 +8,48 @@ import PromotionCard from './components/Promotion';
 import CommitmentCard from './components/CommitmentCard';
 import { SCREEN_PATH } from '@/constants/screenPaths';
 import BreadcrumbNav, { type BreadcrumbItem } from '@/components/common/BreadcrumbNav';
+import { useProductHooks } from '@/hooks/productHooks';
 
 
 const ProductDetail: React.FC = () => {
     const location = useLocation();
-    const { product } = location.state as { product?: Product } || {};
+    const { productId } = location.state as { productId?: number } || {};
+    const { useGetDetail } = useProductHooks();
+    const { getGroupProducts, groupProducts } = useProductHooks();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    const categoryName = product?.category?.name || ''
-    const brandName = product?.brand?.name || ''
-    const brandId = product?.brand?.id || 1
-    const categoryId = product?.category?.id || 1
-    const listImage = product?.gallery?.length ? product?.gallery?.split(';') : [product?.image || '']
-    console.log('Quyen listImage,', listImage)
+    const [productIdNew, setProductIdNew] = useState<number>(productId || 0)
+    console.log('Quyen groupProducts', groupProducts)
+
+    const { data: productDetail } = useGetDetail(productIdNew);
+    const categoryName = productDetail?.data?.category?.name || ''
+    const brandName = productDetail?.data?.brand?.name || ''
+    const categoryId = productDetail?.data?.category?.id || 1
+    const productModelGroupId = productDetail?.data?.productModelGroupId
+    const listImage = productDetail?.data?.gallery?.length ? productDetail?.data?.gallery?.split(';') : [productDetail?.data?.image || '']
     const items: BreadcrumbItem[] = [
         { label: 'Trang chủ', href: "/" },
-        { label: categoryName, href: SCREEN_PATH.PRODUCTPAGE, params: { categoryId, categoryName } },
+        { label: categoryName, href: SCREEN_PATH.PRODUCT_PAGE, params: { categoryId, categoryName } },
         { label: `${categoryName} ${brandName}` },
     ];
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, []);
+
+    useEffect(() => {
+        if (productModelGroupId) {
+            console.log('Quyen productModelGroupId', productModelGroupId)
+            getGroupProducts({ page: 1, size: 10, productModelGroupId })
+        }
+    }, [productModelGroupId])
+
+
+
+    //  useEffect(() => {
+    //   productId && useGetDetail(productId)
+    // }, []);
+
     return (
         // Sử dụng Box cho container chính (Full Screen)
         <Box
@@ -45,40 +65,27 @@ const ProductDetail: React.FC = () => {
         >
             <BreadcrumbNav items={items} />
 
-            {product && <Stack direction={{ xs: 'column', md: 'row', }} spacing={2}>
+            {productDetail?.data && <Stack direction={{ xs: 'column', md: 'row', }} spacing={2}>
                 {/* CỘT BÊN TRÁI */}
                 <Stack spacing={2} flex={3}>
                     <ProductImageGallery
-                        avatar={product.image || ''}
+                        avatar={productDetail?.data.image || ''}
                         images={listImage} />
-                    {!isMobile && <CommitmentCard />}
+                    {!isMobile && <CommitmentCard warranty={productDetail?.data?.warranty} categoryId={productDetail?.data.categoryId} />}
                 </Stack>
 
                 {/* CỘT BÊN PHẢI */}
                 <Stack spacing={1} flex={2}>
                     <ProductOptionSelector
-                        productDetail={product}
+                        productDetail={productDetail?.data}
                         rating={4.8}
                         reviewCount={17}
-                        versions={[
-                            { label: "256GB", price: 37990000 },
-                            { label: "512GB", price: 44490000 },
-                            { label: "1TB", price: 50990000 },
-                            { label: "2TB", price: 63990000 },
-                        ]}
-                        colors={[
-                            { label: "Cam Vũ Trụ", price: 37990000 },
-                            { label: "Xanh Đậm", price: 37990000 },
-                            { label: "Bạc", price: 37990000 },
-                        ]}
-                        warranties={[
-                            { label: "1 đổi 1 12 tháng", priceDiff: 0, isDefault: true },
-                            { label: "1 đổi 1 24 tháng", priceDiff: 1200000 },
-                        ]}
+                        versions={groupProducts?.items?.map(item => ({ label: item.primaryAttributeLabel, idProduct: item.id, image: item.image || '' })) || []}
                         onOrder={() => alert("Đặt hàng thành công!")}
+                        onSelect={setProductIdNew}
                     />
                     <PromotionCard />
-                    {isMobile && <CommitmentCard />}
+                    {isMobile && <CommitmentCard warranty={productDetail?.data?.warranty} categoryId={productDetail?.data.categoryId} />}
 
                 </Stack>
             </Stack>}

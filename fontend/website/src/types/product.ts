@@ -1,5 +1,6 @@
 import type { Brand } from "./brand";
 import type { Category } from "./category";
+import type { Warranty } from "./warranty";
 
 export interface Product {
   id: number;
@@ -11,12 +12,16 @@ export interface Product {
   discountPrice: number;
   categoryId?: number;
   brandId?: number;
+  productModelGroupId?: number;
+  warrantyId?: number;
   image?: string;
   gallery?: string;
   isActive: boolean;
   createdAt?: string;
-  brand?:Brand;
-  category?:Category
+  brand?: Brand;
+  category?: Category;
+  warranty?: Warranty;
+  primaryAttributeLabel?: string;
 }
 
 export interface CreateProductDTO {
@@ -28,6 +33,7 @@ export interface CreateProductDTO {
   discountPrice?: number;
   categoryId?: number;
   brandId?: number;
+  productModelGroupId?: number;
   image?: string;
   gallery?: string;
   isActive?: boolean;
@@ -43,6 +49,7 @@ export interface UpdateProductDTO {
   discountPrice?: number;
   categoryId?: number;
   brandId?: number;
+  productModelGroupId?: number;
   image?: string;
   isActive?: boolean;
   createdAt?: string;
@@ -80,13 +87,14 @@ export interface OptionFilterProduct {
   page?: number,
   size?: number,
   brandId?: number,
+  productModelGroupId?: number;
   categoryId?: number,
   keySearch?: string,
   sortBy?: "DiscountPrice" | "DiscountPercent"; // Enum SortField trong backend
-  sortOrder?: "Asc" | "Desc"; 
+  sortOrder?: "Asc" | "Desc";
   attributeFilters?: string,
-  minPrice?:number;
-  maxPrice?:number
+  minPrice?: number;
+  maxPrice?: number
 }
 
 export interface Response {

@@ -14,36 +14,40 @@ export const AdminScreen: React.FC = () => {
     const listData = [
         {
             name: 'Sản phẩm',
-            path: SCREEN_PATH.PRODUCTMANAGER,
+            path: SCREEN_PATH.PRODUCT_MANAGER,
         },
         {
             name: 'Thêm mới sản phẩm',
-            path: SCREEN_PATH.ADDPRODUCT,
+            path: SCREEN_PATH.ADD_PRODUCT,
         },
         {
             name: 'Thêm mới nhiều sản phẩm',
-            path: SCREEN_PATH.ADDLISTPRODUCT,
+            path: SCREEN_PATH.ADD_LIST_PRODUCT,
         },
          {
             name: 'Cập nhật DS ảnh sản phẩm',
-            path: SCREEN_PATH.PRODUCTUPDATEGALLERY,
+            path: SCREEN_PATH.PRODUCT_UPDATE_GALLERY,
         },
         
         {
             name: 'Thương hiệu',
-            path: SCREEN_PATH.BRANDMANAGER,
+            path: SCREEN_PATH.BRAND_MANAGER,
         },
         {
             name: 'Brand x Category',
-            path: SCREEN_PATH.BRANDCATEGORYCREAT,
+            path: SCREEN_PATH.BRAND_CATEGORY_CREAT,
         },
         {
             name: 'Thêm mới thuộc tính',
-            path: SCREEN_PATH.ATTRIBUTEADD,
+            path: SCREEN_PATH.ATTRIBUTE_ADD,
         },
          {
             name: 'Bảo hành',
-            path: SCREEN_PATH.WARRANTYMANAGER,
+            path: SCREEN_PATH.WARRANTY_MANAGER,
+        },
+         {
+            name: 'Nhóm sản phẩm',
+            path: SCREEN_PATH.PRODUCT_MODEL_GROUP_MANAGER,
         },
 
     ]

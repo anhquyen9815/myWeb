@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DienMayLongQuyen.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251120015158_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251121013154_Baseline4")]
+    partial class Baseline4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -273,6 +273,9 @@ namespace DienMayLongQuyen.Api.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ProductModelGroupId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -288,6 +291,8 @@ namespace DienMayLongQuyen.Api.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
+
+                    b.HasIndex("ProductModelGroupId");
 
                     b.HasIndex("WarrantyId");
 
@@ -369,6 +374,37 @@ namespace DienMayLongQuyen.Api.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductImages");
+                });
+
+            modelBuilder.Entity("DienMayLongQuyen.Api.Models.ProductModelGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("BrandId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrandId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ProductModelGroups");
                 });
 
             modelBuilder.Entity("DienMayLongQuyen.Api.Models.ProductSpec", b =>
@@ -490,6 +526,11 @@ namespace DienMayLongQuyen.Api.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("DienMayLongQuyen.Api.Models.ProductModelGroup", "ProductModelGroup")
+                        .WithMany("Products")
+                        .HasForeignKey("ProductModelGroupId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("DienMayLongQuyen.Api.Models.Warranty", "Warranty")
                         .WithMany("Products")
                         .HasForeignKey("WarrantyId")
@@ -498,6 +539,8 @@ namespace DienMayLongQuyen.Api.Migrations
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
+
+                    b.Navigation("ProductModelGroup");
 
                     b.Navigation("Warranty");
                 });
@@ -551,6 +594,23 @@ namespace DienMayLongQuyen.Api.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("DienMayLongQuyen.Api.Models.ProductModelGroup", b =>
+                {
+                    b.HasOne("DienMayLongQuyen.Api.Models.Brand", "Brand")
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DienMayLongQuyen.Api.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Brand");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("DienMayLongQuyen.Api.Models.ProductSpec", b =>
                 {
                     b.HasOne("DienMayLongQuyen.Api.Models.Product", "Product")
@@ -599,6 +659,11 @@ namespace DienMayLongQuyen.Api.Migrations
                     b.Navigation("ProductAttributeValues");
 
                     b.Navigation("Specs");
+                });
+
+            modelBuilder.Entity("DienMayLongQuyen.Api.Models.ProductModelGroup", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("DienMayLongQuyen.Api.Models.Warranty", b =>

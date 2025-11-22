@@ -20,6 +20,11 @@ export const productsWithFilter = async (option: OptionFilterProduct): Promise<R
   return response.data;
 };
 
+export const productsWithGroup = async (option: OptionFilterProduct): Promise<Response> => {
+  const response: AxiosResponse<Response> = await apiClient.get('/products/group', { params: option });
+  return response.data;
+};
+
 
 
 export const productApi = createApi<Product, CreateProductDTO, UpdateProductDTO>('/products');

@@ -12,7 +12,7 @@ export const CategoryBar: React.FC = () => {
     const { data: listCategory, } = useGetListCategory(1, '', 50);
 
         const handleClick = (category: Category) => {
-            navigate(SCREEN_PATH.PRODUCTPAGE, {
+            navigate(SCREEN_PATH.PRODUCT_PAGE, {
                 state: {categoryId: category.id, categoryName: category.name }, // 👈 truyền props qua state
             });
         };

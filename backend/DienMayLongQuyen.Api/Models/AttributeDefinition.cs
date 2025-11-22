@@ -16,10 +16,14 @@ namespace DienMayLongQuyen.Api.Models
         // Thứ tự hiển thị (VD: Dung tích = 1, Số cánh = 2)
         public int DisplayOrder { get; set; }
 
+        public bool IsPrimary { get; set; } = false;
+
         public int CategoryId { get; set; }
         public Category Category { get; set; }
 
         public ICollection<AttributeOption> Options { get; set; }
         public ICollection<ProductAttributeValue> ProductValues { get; set; }
+         public ICollection<ProductAttributeOption> ProductAttributeOptions { get; set; }
+
     }
 }

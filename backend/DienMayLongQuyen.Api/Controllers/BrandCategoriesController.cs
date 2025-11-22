@@ -184,6 +184,7 @@ namespace DienMayLongQuyen.Api.Controllers
                 var query = _context.BrandCategories
                     .Include(bc => bc.Brand)
                     .Include(bc => bc.Category)
+                    .AsNoTracking()
                     .AsQueryable();
 
                 // Lọc theo BrandId

@@ -41,10 +41,6 @@ const promotions: PromotionItem[] = [
     },
     {
         id: 6,
-        text: "Miễn phí công lắp đặt",
-    },
-    {
-        id: 7,
         text: "Tặng bộ 6 cốc thủy tinh hoặc 1 ấm siêu tốc 1.5L",
     },
 ];

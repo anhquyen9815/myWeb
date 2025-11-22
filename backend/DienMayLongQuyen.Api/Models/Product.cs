@@ -28,6 +28,10 @@ namespace DienMayLongQuyen.Api.Models
         public int? WarrantyId { get; set; }
         public Warranty? Warranty { get; set; }
 
+        [ForeignKey("ProductModelGroup")]
+        public int? ProductModelGroupId { get; set; }
+        public ProductModelGroup ProductModelGroup { get; set; }
+
         public decimal Price { get; set; }
         public double? DiscountPrice { get; set; }
         public int? DiscountPercent { get; set; }
@@ -46,6 +50,8 @@ namespace DienMayLongQuyen.Api.Models
 
         public ICollection<ProductAttributeOption> ProductAttributeOptions { get; set; }
         public ICollection<ProductAttributeValue> ProductAttributeValues { get; set; }
+        
+
         // public ICollection<ProductWarranty> ProductWarranties { get; set; } = new List<ProductWarranty>();
 
 

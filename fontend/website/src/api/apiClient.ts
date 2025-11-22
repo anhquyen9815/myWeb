@@ -64,6 +64,7 @@ export async function get<T>(
   url: string,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
+
   const res = await apiClient.get<T>(url, config);
   return res.data as ApiResponse<T>;
 }

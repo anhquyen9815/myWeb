@@ -35,8 +35,9 @@ namespace DienMayLongQuyen.Api.Controllers
 
             var query = _db.ProductAttributeOptions
                 .Include(pao => pao.AttributeOption)
-                    .ThenInclude(ao => ao.AttributeDefinition)
+                .ThenInclude(ao => ao.AttributeDefinition)
                 .Include(pao => pao.Product)
+                .AsNoTracking()
                 .AsQueryable();
 
             // Filters
@@ -351,10 +352,9 @@ namespace DienMayLongQuyen.Api.Controllers
         /// </summary>
         [HttpPost("assignOptionToProducts")]
         public async Task<IActionResult> AssignOptionToProducts(
-            [FromBody] AssignOptionToProductsRequest request
-            )
+    [FromBody] AssignOptionToProductsRequest request
+    )
         {
-
             if (request == null) return BadRequest("Request body is required.");
             if (request.ProductIds == null || request.ProductIds.Length == 0)
                 return BadRequest("ProductIds is required.");
@@ -373,8 +373,10 @@ namespace DienMayLongQuyen.Api.Controllers
 
             if (option == null) return BadRequest($"AttributeOption {optionId} not found.");
 
-            var attrDefId = option.AttributeDefinition?.Id;
-            var optionAttrCategoryId = option.AttributeDefinition?.CategoryId;
+            var attrDef = option.AttributeDefinition;
+            if (attrDef == null) return BadRequest("Related AttributeDefinition not found for the option.");
+            var attrDefId = attrDef.Id;
+            var optionAttrCategoryId = attrDef.CategoryId;
 
             var products = await _db.Products
                 .Where(p => productIds.Contains(p.Id))
@@ -385,59 +387,87 @@ namespace DienMayLongQuyen.Api.Controllers
             var missingProducts = productIds.Except(foundProductIds).ToList();
 
             var mismatches = new List<int>();
-            if (optionAttrCategoryId.HasValue)
+            if (optionAttrCategoryId != 0)
             {
                 mismatches = products
-                    .Where(p => p.CategoryId != optionAttrCategoryId.Value)
+                    .Where(p => p.CategoryId != optionAttrCategoryId)
                     .Select(p => p.Id)
                     .ToList();
             }
 
-            if (mismatches.Any())
-            {
-                return Conflict(new { message = "Some products' category do not match the option's attribute category.", mismatches, missingProducts });
-            }
-
             var added = new List<int>();
-            var already = new List<int>();
+            var alreadySameOption = new List<int>();      // already assigned the same option
+            var skippedHasSameAttribute = new List<int>(); // skipped because product already has assignment for same attribute (and replace==false)
 
             using var tx = await _db.Database.BeginTransactionAsync();
             try
             {
-                if (replaceSameAttribute && attrDefId.HasValue)
+                // Nếu yêu cầu replace: xóa mọi assignment của cùng AttributeDefinition cho các product này
+                if (replaceSameAttribute)
                 {
-                    var toRemove = _db.ProductAttributeOptions
-                        .Where(pao => productIds.Contains(pao.ProductId))
-                        .Join(_db.AttributeOptions,
-                              pao => pao.AttributeOptionId,
-                              ao => ao.Id,
-                              (pao, ao) => new { pao, ao })
-                        .Where(joined => joined.ao.AttributeDefinitionId == attrDefId.Value)
-                        .Select(joined => joined.pao);
+                    var toRemove = await _db.ProductAttributeOptions
+                        .Where(pao => productIds.Contains(pao.ProductId) && pao.AttributeDefinitionId == attrDefId)
+                        .ToListAsync();
 
-                    _db.ProductAttributeOptions.RemoveRange(toRemove);
-                    await _db.SaveChangesAsync();
+                    if (toRemove.Any())
+                    {
+                        _db.ProductAttributeOptions.RemoveRange(toRemove);
+                        await _db.SaveChangesAsync();
+                    }
                 }
 
-                // existing links for this optionId
+                // Các product đã có liên kết với chính option này
                 var existingLinks = await _db.ProductAttributeOptions
                     .Where(pao => productIds.Contains(pao.ProductId) && pao.AttributeOptionId == optionId)
                     .Select(pao => pao.ProductId)
                     .ToListAsync();
 
                 var existingSet = existingLinks.ToHashSet();
+                alreadySameOption.AddRange(existingSet);
 
-                // create only for productIds not in existingSet, not missing, not mismatched
+                // Các product đã có 1 assignment cho cùng AttributeDefinition (bất kể option nào)
+                // Nếu replaceSameAttribute == true thì những dòng này đã bị xóa ở trên, nên kết quả rỗng.
+                var existingByDef = await _db.ProductAttributeOptions
+                    .Where(pao => productIds.Contains(pao.ProductId) && pao.AttributeDefinitionId == attrDefId)
+                    .Select(pao => pao.ProductId)
+                    .ToListAsync();
+
+                var existingByDefSet = existingByDef.ToHashSet();
+
+                // Những product thực sự có thể insert: không missing, không mismatched, không đã có chính option, và không đã có assignment cho cùng attribute (nếu replace==false)
                 var toInsertProductIds = productIds
-                    .Where(pid => !existingSet.Contains(pid) && !missingProducts.Contains(pid) && !mismatches.Contains(pid))
+                    .Where(pid =>
+                        !existingSet.Contains(pid) &&
+                        !existingByDefSet.Contains(pid) &&
+                        !missingProducts.Contains(pid) &&
+                        !mismatches.Contains(pid))
                     .Distinct()
                     .ToList();
 
-                var toInsert = toInsertProductIds.Select(pid => new ProductAttributeOption { ProductId = pid, AttributeOptionId = optionId }).ToList();
+                // Track those skipped because they already had assignment for same attribute (when replaceSameAttribute == false)
+                if (!replaceSameAttribute)
+                {
+                    var skipped = productIds
+                        .Where(pid => existingByDefSet.Contains(pid) && !existingSet.Contains(pid))
+                        .ToList();
+
+                    skippedHasSameAttribute.AddRange(skipped);
+                }
+
+                // Tạo entities để insert (với AttributeDefinitionId)
+                var toInsert = toInsertProductIds
+                    .Select(pid => new ProductAttributeOption
+                    {
+                        ProductId = pid,
+                        AttributeOptionId = optionId,
+                        AttributeDefinitionId = attrDefId
+                    })
+                    .ToList();
 
                 if (toInsert.Any())
                 {
                     _db.ProductAttributeOptions.AddRange(toInsert);
+
                     try
                     {
                         await _db.SaveChangesAsync();
@@ -445,27 +475,33 @@ namespace DienMayLongQuyen.Api.Controllers
                     }
                     catch (DbUpdateException dbEx)
                     {
-                        if (IsUniqueConstraintViolation(dbEx))
-                        {
-                            await tx.RollbackAsync();
-                            return Conflict(new { message = "One or more assignments already exist (unique constraint)." });
-                        }
-                        throw;
+                        // Cố gắng phòng tránh lỗi unique bằng cách check trước, nhưng vẫn vẫn catch nếu DB có ràng buộc khác
+                        await tx.RollbackAsync();
+
+                        // Nếu bạn có helper IsUniqueConstraintViolation, có thể dùng, nếu không thì trả conflict chung
+                        return Conflict(new { message = "One or more assignments already exist (unique constraint).", detail = dbEx.Message });
                     }
                 }
 
-                already.AddRange(existingSet);
                 await tx.CommitAsync();
+
+                // Merge 'already' to include those that already had the same option
+                var already = alreadySameOption; // existingSet
+                return Ok(new
+                {
+                    added,
+                    already,
+                    skippedHasSameAttribute,
+                    missingProducts,
+                    mismatches
+                });
             }
             catch (Exception ex)
             {
                 await tx.RollbackAsync();
                 return StatusCode(500, new { message = "An error occurred while assigning option to products.", detail = ex.Message });
             }
-
-            return Ok(new { added, already, missingProducts, mismatches });
         }
-
 
 
         private bool IsUniqueConstraintViolation(DbUpdateException dbEx)
