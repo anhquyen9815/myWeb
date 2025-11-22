@@ -23,7 +23,7 @@ COPY --from=node_build /app/fontend/dist ./DienMayLongQuyen.Api/wwwroot
 
 # trước khi copy app files, hoặc sau, tuỳ flow của Dockerfile
 # đảm bảo đường dẫn build context chứa file (không bị .dockerignore loại)
-COPY Seed/longquyen.db /app/longquyen.db
+COPY backend/DienMayLongQuyen.Api/Seed/longquyen.db /app/longquyen.db
 # hoặc nếu bạn muốn copy root longquyen.db:
 # COPY longquyen.db /app/longquyen.db
 
