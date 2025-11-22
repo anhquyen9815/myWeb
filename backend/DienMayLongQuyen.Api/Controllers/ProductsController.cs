@@ -508,6 +508,19 @@ namespace DienMayLongQuyen.Api.Controllers
             }
         }
 
+        [HttpGet("debug/download-db")]
+        public IActionResult DownloadDb()
+        {
+            const string path = "/app/longquyen.db";
+            if (!System.IO.File.Exists(path))
+                return NotFound();
+
+            return File(System.IO.File.ReadAllBytes(path),
+                        "application/octet-stream",
+                        "longquyen.db");
+        }
+
+
 
 
     }
