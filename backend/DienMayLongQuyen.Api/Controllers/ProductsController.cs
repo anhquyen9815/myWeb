@@ -520,6 +520,28 @@ namespace DienMayLongQuyen.Api.Controllers
                         "longquyen.db");
         }
 
+        [HttpPost("debug/upload-db")]
+        public async Task<IActionResult> UploadDb(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            var path = "/app/longquyen.db";
+
+            // if there is an existing DB → backup it
+            if (System.IO.File.Exists(path))
+            {
+                var backup = $"/app/longquyen.db.bak.{DateTime.UtcNow.Ticks}";
+                System.IO.File.Move(path, backup);
+            }
+
+            using (var stream = System.IO.File.Create(path))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return Ok(new { message = "Uploaded", path });
+        }
 
 
 

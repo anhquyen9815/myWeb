@@ -21,6 +21,12 @@ COPY backend/DienMayLongQuyen.Api ./DienMayLongQuyen.Api
 RUN mkdir -p DienMayLongQuyen.Api/wwwroot
 COPY --from=node_build /app/fontend/dist ./DienMayLongQuyen.Api/wwwroot
 
+# trước khi copy app files, hoặc sau, tuỳ flow của Dockerfile
+# đảm bảo đường dẫn build context chứa file (không bị .dockerignore loại)
+COPY Seed/longquyen.db /app/longquyen.db
+# hoặc nếu bạn muốn copy root longquyen.db:
+# COPY longquyen.db /app/longquyen.db
+
 # Restore & publish (chỉ đúng path đã copy)
 WORKDIR /src/DienMayLongQuyen.Api
 RUN dotnet restore "DienMayLongQuyen.Api.csproj"
