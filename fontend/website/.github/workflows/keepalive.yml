@@ -2,7 +2,7 @@ name: 🕒 Keep Render Backend Alive
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # Chạy mỗi 10 phút
+    - cron: "*/5 * * * *"   # Chạy mỗi 10 phút
   workflow_dispatch:          # Cho phép chạy thủ công khi cần
 
 jobs:
