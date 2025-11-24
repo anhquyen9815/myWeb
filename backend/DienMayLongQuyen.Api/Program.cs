@@ -249,6 +249,13 @@ app.UseCors("AllowAll");
 app.UseAuthorization();
 
 app.UseRouting();
+
+// === Thêm endpoint health ở đây (trước MapControllers / MapFallbackToFile) ===
+app.MapGet("/api/health", () => Results.Ok("OK"))
+   .WithName("Health")
+   .WithMetadata(new Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute());
+// 
+
 app.MapControllers();
 
 // *** DÒNG GIẢI QUYẾT LỖI 404 KHI RELOAD ***
